@@ -13,4 +13,10 @@ let el = elements[0]
 
 let jj = parseJson(client.getcontent(el.attr("href")))
 
+# technically oembed has four types:
+# rich: arbitrary html
+# video: basically arbitrary html
+# photo: image url
+# link: just metadata
+# But realistically only video and rich are needed. 
 echo jj["html"].getStr()
