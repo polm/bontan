@@ -5,18 +5,51 @@ from htmlparser import parseHtml
 import nimquery
 import json
 
-var client = newHttpClient()
-var content = client.getcontent(paramStr(1))
-var doc = parseHtml(content)
-let elements = doc.querySelectorAll("[type=\"application/json+oembed\"]")
-let el = elements[0]
+proc getEmbed(url: string): string =
+  # Given a URL, get the HTML for embedding it.
+  let client = newHttpClient()
 
-let jj = parseJson(client.getcontent(el.attr("href")))
+  var content = ""
 
-# technically oembed has four types:
-# rich: arbitrary html
-# video: basically arbitrary html
-# photo: image url
-# link: just metadata
-# But realistically only video and rich are needed. 
-echo jj["html"].getStr()
+  try:
+    content = client.getContent(url)
+  except ValueError:
+    echo "Couldn't fetch the page"
+    quit 1
+
+  let doc = parseHtml(content)
+
+  # In some cases only XML may be available, but just ignore it.
+  let elements = doc.querySelectorAll("[type=\"application/json+oembed\"]")
+  if len(elements) == 0:
+    echo "No OEmbed URL found"
+    quit 1
+
+  let el = elements[0]
+  var jj: JsonNode;
+  try:
+    jj = parseJson(client.getcontent(el.attr("href")))
+  except:
+    echo "Error parsing JSON"
+    quit 1
+
+  try:
+    result = jj["html"].getStr()
+  except:
+    # Technically some kinds of OEmbed won't have an html property, but they're
+    # rarely used (and don't really need OEmbed anyway.)
+    echo "Couldn't get HTML for embedding"
+    quit 1
+  
+  echo result
+
+proc main(): int =
+  if paramCount() != 1:
+    echo "You need to provide a URL"
+    quit 1
+
+  discard getEmbed(paramStr(1))
+
+when isMainModule:
+  discard main()
+
