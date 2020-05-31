@@ -29,6 +29,14 @@ Output:
 
     <iframe width="459" height="344" src="https://www.youtube.com/embed/tgdY9k5_nEU?feature=oembed" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+## To Build
+
+bontan is written in Nim. If you have nim and nimble installed:
+
+    nimble build
+
+Should do it.
+
 ## License
 
 WTFPL, do as you please.
