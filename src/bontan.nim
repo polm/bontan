@@ -4,8 +4,9 @@ from xmltree import `$`, innerText, attr
 from htmlparser import parseHtml
 import nimquery
 import json
+from strformat import `&`
 
-proc getEmbed(url: string): string =
+proc getEmbed(url: string, width: int= -1, height: int= -1): string =
   # Given a URL, get the HTML for embedding it.
   let client = newHttpClient()
 
@@ -25,10 +26,15 @@ proc getEmbed(url: string): string =
     echo "No OEmbed URL found"
     quit 1
 
-  let el = elements[0]
+  var oembedURL = elements[0].attr("href")
+  if width > 0:
+    oembedURL = oembedURL & (&"&maxwidth={width}")
+  if height > 0:
+    oembedURL = oembedURL & (&"&maxheight={height}")
+
   var jj: JsonNode;
   try:
-    jj = parseJson(client.getcontent(el.attr("href")))
+    jj = parseJson(client.getcontent(oembedURL))
   except:
     echo "Error parsing JSON"
     quit 1
@@ -41,15 +47,9 @@ proc getEmbed(url: string): string =
     echo "Couldn't get HTML for embedding"
     quit 1
   
-  echo result
+  return result
 
-proc main(): int =
-  if paramCount() != 1:
-    echo "You need to provide a URL"
-    quit 1
-
-  discard getEmbed(paramStr(1))
-
+import cligen
 when isMainModule:
-  discard main()
+  dispatch(getEmbed)
 

@@ -10,4 +10,4 @@ skipExt     = @["nim"]
 
 # Deps
 
-requires "nim >= 1.2.0", "nimquery >= 1.2.2"
+requires "nim >= 1.2.0", "nimquery >= 1.2.2", "cligen >= 1.0.0"
